@@ -4,6 +4,7 @@ import {
   asignVoteId,
   getCharacter,
   getCharacters,
+  getVote,
 } from '../lib/database-operation';
 import { Datetime } from '../lib/datetime';
 
@@ -16,7 +17,7 @@ const mutation: IResolvers = {
         return {
           status: false,
           message: 'El personaje no existe y no puedes votar',
-          character: await getCharacters(db),
+          characters: await getCharacters(db),
         };
       }
 
@@ -42,6 +43,46 @@ const mutation: IResolvers = {
             status: false,
             message: 'Hay un problema el voto no se ha emitido',
             characters: await getCharacters(db),
+          };
+        });
+    },
+
+    async updateVote(_: void, { id, character }, { db }) {
+      // Comtrobar que el personaje existe
+      const selectCharacter = await getCharacter(db, character);
+      if (selectCharacter === null || selectCharacter === undefined) {
+        return {
+          status: false,
+          message: 'El personaje no existe y no puedes actualizar el voto',
+          characters: await getCharacters(db),
+        };
+      }
+      // Comprobar que el voto existe
+      const selectVote = await getVote(db, id);
+      if (selectVote === null || selectVote === undefined) {
+        return {
+          status: false,
+          message: 'El voto no existe y no puedes actualizar',
+          characters: await getCharacters(db),
+        };
+      }
+      // Actualizar el voto
+      return await db
+        .collection(COLLECTIONS.VOTES)
+        .updateOne({ id }, { $set: { character } })
+        .then(async () => {
+          return {
+            status: true,
+            message: 'Voto actualizado correctamente',
+            characters: getCharacters(db),
+          };
+        })
+        .catch(async () => {
+          return {
+            status: false,
+            message:
+              'Voto no actualizado correctamente, prueba nuevamente por favor',
+            characters: getCharacters(db),
           };
         });
     },
