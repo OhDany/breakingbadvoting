@@ -13,3 +13,8 @@ export async function getCharacters(db: any) {
 export async function getCharacter(db: any, id: string) {
   return await db.collection(COLLECTIONS.CHARACTERS).findOne({ id });
 }
+
+// Voto de un personaje
+export async function getCharacterVotes(db: any, id: string) {
+  return await db.collection(COLLECTIONS.VOTES).find({ character: id }).count();
+}
