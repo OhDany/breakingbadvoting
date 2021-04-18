@@ -8,3 +8,8 @@ export async function getCharacters(db: any) {
     .sort({ id: 1 })
     .toArray();
 }
+
+// Personaje seleccionado
+export async function getCharacter(db: any, id: string) {
+  return await db.collection(COLLECTIONS.CHARACTERS).findOne({ id });
+}
