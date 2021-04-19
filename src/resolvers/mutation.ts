@@ -86,6 +86,36 @@ const mutation: IResolvers = {
           };
         });
     },
+
+    async deleteVote(_: void, { id }, { db }) {
+      // Comprobar que el voto existe
+      const selectVote = await getVote(db, id);
+      if (selectVote === null || selectVote === undefined) {
+        return {
+          status: false,
+          message: 'El voto no existe y no puedes eliminar',
+          characters: await getCharacters(db),
+        };
+      }
+      // Si existe borrarlo
+      return await db
+        .collection(COLLECTIONS.VOTES)
+        .deleteOne({ id })
+        .then(async () => {
+          return {
+            status: true,
+            message: 'Voto eliminado correctamente',
+            characters: await getCharacters(db),
+          };
+        })
+        .catch(async () => {
+          return {
+            status: false,
+            message: 'Voto no eliminado',
+            characters: await getCharacters(db),
+          };
+        });
+    },
   },
 };
 
